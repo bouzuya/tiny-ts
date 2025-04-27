@@ -1,0 +1,7 @@
+[package]
+name = "tiny-ts"
+edition = "2024"
+publish = false
+
+[dependencies]
+logos = "0.15.0"
