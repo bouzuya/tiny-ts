@@ -16,7 +16,7 @@ fn read_binary(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term 
         Token::False => Term::False,
         Token::True => Term::True,
         Token::Integer(i) => Term::Integer(i),
-        Token::Plus | Token::Question | Token::Colon => unreachable!(),
+        Token::Plus | Token::Quest | Token::Colon => unreachable!(),
     };
     match iter.peek() {
         None => unary,
@@ -24,7 +24,7 @@ fn read_binary(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term 
             let token = token.as_ref().unwrap();
             match token {
                 Token::False | Token::True | Token::Integer(_) => unreachable!(),
-                Token::Question | Token::Colon => unary,
+                Token::Quest | Token::Colon => unary,
                 Token::Plus => {
                     assert!(matches!(iter.next(), Some(Ok(Token::Plus))));
                     let left = unary;
@@ -46,8 +46,8 @@ fn read_ternary(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term
                 Token::False | Token::True | Token::Integer(_) | Token::Plus => {
                     unreachable!()
                 }
-                Token::Question => {
-                    assert!(matches!(iter.next(), Some(Ok(Token::Question))));
+                Token::Quest => {
+                    assert!(matches!(iter.next(), Some(Ok(Token::Quest))));
                     let cond = binary;
                     let thn = read_ternary(iter);
                     assert!(matches!(iter.next(), Some(Ok(Token::Colon))));

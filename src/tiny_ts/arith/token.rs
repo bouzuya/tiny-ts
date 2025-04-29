@@ -10,7 +10,7 @@ pub enum Token {
     #[token("+")]
     Plus,
     #[token("?")]
-    Question,
+    Quest,
     #[token(":")]
     Colon,
 }
@@ -27,7 +27,7 @@ mod tests {
         assert_eq!(lexer.span(), 0..4);
         assert_eq!(lexer.slice(), "true");
 
-        assert_eq!(lexer.next(), Some(Ok(Token::Question)));
+        assert_eq!(lexer.next(), Some(Ok(Token::Quest)));
         assert_eq!(lexer.span(), 5..6);
         assert_eq!(lexer.slice(), "?");
 
