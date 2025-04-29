@@ -1,5 +1,5 @@
-use crate::tiny_ts::term::Term;
-use crate::tiny_ts::token::Token;
+use crate::tiny_ts::arith::term::Term;
+use crate::tiny_ts::arith::token::Token;
 
 pub fn parse(s: &str) -> Term {
     let lexer = <Token as logos::Logos>::lexer(s);

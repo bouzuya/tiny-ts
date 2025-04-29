@@ -1,3 +1,5 @@
+use crate::tiny_ts::arith::Term;
+
 #[derive(Debug, PartialEq)]
 pub enum Type {
     Boolean,
@@ -28,23 +30,22 @@ pub fn typecheck(t: Term) -> Type {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    use crate::tiny_ts::arith::parse;
 
     #[test]
     fn test() {
-        let lexer = <Token as logos::Logos>::lexer("false");
-        let term = read_ternary(&mut lexer.peekable());
+        let term = parse("false");
         assert_eq!(typecheck(term), Type::Boolean);
 
-        let lexer = <Token as logos::Logos>::lexer("true");
-        let term = read_ternary(&mut lexer.peekable());
+        let term = parse("true");
         assert_eq!(typecheck(term), Type::Boolean);
 
-        let lexer = <Token as logos::Logos>::lexer("0");
-        let term = read_ternary(&mut lexer.peekable());
+        let term = parse("0");
         assert_eq!(typecheck(term), Type::Integer);
 
-        let lexer = <Token as logos::Logos>::lexer("true ? 0 : 1 + 2");
-        let term = read_ternary(&mut lexer.peekable());
+        let term = parse("true ? 0 : 1 + 2");
         assert_eq!(typecheck(term), Type::Integer);
     }
 }
