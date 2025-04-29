@@ -5,7 +5,7 @@ mod typecheck;
 
 pub use self::parse::parse;
 pub use self::term::Term;
-pub use self::typecheck::typecheck;
+pub use self::typecheck::{Type, typecheck};
 
 #[cfg(test)]
 mod tests {
