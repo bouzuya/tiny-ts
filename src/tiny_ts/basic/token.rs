@@ -21,6 +21,12 @@ pub enum Token {
     Const,
     #[token("=")]
     Equals,
+    #[token("(")]
+    ParenL,
+    #[token(")")]
+    ParenR,
+    #[token("=>")]
+    Arrow,
 }
 
 #[cfg(test)]
@@ -76,7 +82,30 @@ mod tests {
         assert_eq!(lexer.slice(), "f");
         assert_eq!(lexer.next(), None);
 
-        // TODO: (x: number) => x
+        let mut lexer = <Token as logos::Logos>::lexer("(x: number) => x");
+        assert_eq!(lexer.next(), Some(Ok(Token::ParenL)));
+        assert_eq!(lexer.span(), 0..1);
+        assert_eq!(lexer.slice(), "(");
+        assert_eq!(lexer.next(), Some(Ok(Token::Ident("x".to_owned()))));
+        assert_eq!(lexer.span(), 1..2);
+        assert_eq!(lexer.slice(), "x");
+        assert_eq!(lexer.next(), Some(Ok(Token::Colon)));
+        assert_eq!(lexer.span(), 2..3);
+        assert_eq!(lexer.slice(), ":");
+        assert_eq!(lexer.next(), Some(Ok(Token::Ident("number".to_owned()))));
+        assert_eq!(lexer.span(), 4..10);
+        assert_eq!(lexer.slice(), "number");
+        assert_eq!(lexer.next(), Some(Ok(Token::ParenR)));
+        assert_eq!(lexer.span(), 10..11);
+        assert_eq!(lexer.slice(), ")");
+        assert_eq!(lexer.next(), Some(Ok(Token::Arrow)));
+        assert_eq!(lexer.span(), 12..14);
+        assert_eq!(lexer.slice(), "=>");
+        assert_eq!(lexer.next(), Some(Ok(Token::Ident("x".to_owned()))));
+        assert_eq!(lexer.span(), 15..16);
+        assert_eq!(lexer.slice(), "x");
+        assert_eq!(lexer.next(), None);
+
         // TODO: f(1)
 
         let mut lexer = <Token as logos::Logos>::lexer("const x = 1; x");
