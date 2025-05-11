@@ -106,7 +106,20 @@ mod tests {
         assert_eq!(lexer.slice(), "x");
         assert_eq!(lexer.next(), None);
 
-        // TODO: f(1)
+        let mut lexer = <Token as logos::Logos>::lexer("f(1)");
+        assert_eq!(lexer.next(), Some(Ok(Token::Ident("f".to_owned()))));
+        assert_eq!(lexer.span(), 0..1);
+        assert_eq!(lexer.slice(), "f");
+        assert_eq!(lexer.next(), Some(Ok(Token::ParenL)));
+        assert_eq!(lexer.span(), 1..2);
+        assert_eq!(lexer.slice(), "(");
+        assert_eq!(lexer.next(), Some(Ok(Token::Integer(1))));
+        assert_eq!(lexer.span(), 2..3);
+        assert_eq!(lexer.slice(), "1");
+        assert_eq!(lexer.next(), Some(Ok(Token::ParenR)));
+        assert_eq!(lexer.span(), 3..4);
+        assert_eq!(lexer.slice(), ")");
+        assert_eq!(lexer.next(), None);
 
         let mut lexer = <Token as logos::Logos>::lexer("const x = 1; x");
         assert_eq!(lexer.next(), Some(Ok(Token::Const)));
