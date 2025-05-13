@@ -23,6 +23,8 @@ pub enum Token {
     Equals,
     #[token("(")]
     ParenL,
+    #[token(",")]
+    Comma,
     #[token(")")]
     ParenR,
     #[token("=>")]
@@ -118,6 +120,27 @@ mod tests {
         assert_eq!(lexer.slice(), "1");
         assert_eq!(lexer.next(), Some(Ok(Token::ParenR)));
         assert_eq!(lexer.span(), 3..4);
+        assert_eq!(lexer.slice(), ")");
+        assert_eq!(lexer.next(), None);
+
+        let mut lexer = <Token as logos::Logos>::lexer("g(2, 3)");
+        assert_eq!(lexer.next(), Some(Ok(Token::Ident("g".to_owned()))));
+        assert_eq!(lexer.span(), 0..1);
+        assert_eq!(lexer.slice(), "g");
+        assert_eq!(lexer.next(), Some(Ok(Token::ParenL)));
+        assert_eq!(lexer.span(), 1..2);
+        assert_eq!(lexer.slice(), "(");
+        assert_eq!(lexer.next(), Some(Ok(Token::Integer(2))));
+        assert_eq!(lexer.span(), 2..3);
+        assert_eq!(lexer.slice(), "2");
+        assert_eq!(lexer.next(), Some(Ok(Token::Comma)));
+        assert_eq!(lexer.span(), 3..4);
+        assert_eq!(lexer.slice(), ",");
+        assert_eq!(lexer.next(), Some(Ok(Token::Integer(3))));
+        assert_eq!(lexer.span(), 5..6);
+        assert_eq!(lexer.slice(), "3");
+        assert_eq!(lexer.next(), Some(Ok(Token::ParenR)));
+        assert_eq!(lexer.span(), 6..7);
         assert_eq!(lexer.slice(), ")");
         assert_eq!(lexer.next(), None);
 
