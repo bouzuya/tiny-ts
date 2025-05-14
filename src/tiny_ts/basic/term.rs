@@ -35,6 +35,6 @@ pub enum Term {
 
 #[derive(Debug, PartialEq)]
 pub struct Param {
-    name: String,
-    typ: Type,
+    pub name: String,
+    pub typ: Type,
 }
