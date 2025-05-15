@@ -9,17 +9,19 @@ pub fn parse(s: &str) -> Term {
     read_term(&mut lexer.peekable())
 }
 
-// func       = "paren_l" param_list "paren_r" "arrow" ternary
-// param      = "ident" "colon" "ident"
-// param_list = param | param "comma" param_list
-// unary      = "false" | "true" | "integer" | "ident" | func
-// binary     = unary | unary "plus" binary
-// ternary    = binary | binary "question" ternary "colon" ternary
-// const      = "const" "ident" "equals" ternary "semicolon" term
-// seq        = ternary "semicolon" term
-// term       = const | seq | ternary "semicolon"
+// func         = "paren_l" "paren_r" "arrow" ternary | "paren_l" param_list "paren_r" "arrow" ternary
+// param        = "ident" "colon" "ident"
+// param_list   = param | param "comma" param_list
+// func_call    = "ident" "paren_l" "paren_r" | "ident" "paren_l" arg_list "paren_r"
+// arg_list     = arg | arg "comma" arg_list
+// primary_expr = "false" | "true" | "integer" | "ident" | func | func_call
+// binary       = primary_expr | primary_expr "plus" binary
+// ternary      = binary | binary "question" ternary "colon" ternary
+// const        = "const" "ident" "equals" ternary "semicolon" term
+// seq          = ternary "semicolon" term
+// term         = const | seq | ternary "semicolon"
 
-// TODO: unary support f(1)
+// TODO: param support f(1)
 // TODO: param support f: (x: number) => x
 
 fn read_term(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term {
@@ -89,13 +91,26 @@ fn read_term(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term {
     }
 }
 
-fn read_unary(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term {
+fn read_primary_expr(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term {
     let token = iter.next().unwrap().unwrap();
     match token {
         Token::False => Term::False,
         Token::True => Term::True,
         Token::Integer(i) => Term::Integer(i),
-        Token::Ident(name) => Term::Var { name },
+        Token::Ident(name) => {
+            if matches!(iter.peek(), Some(Ok(Token::ParenL))) {
+                assert!(matches!(iter.next(), Some(Ok(Token::ParenL))));
+                assert!(matches!(iter.next(), Some(Ok(Token::ParenR))));
+                let args = vec![];
+                // TODO
+                Term::Call {
+                    func: Box::new(Term::Var { name }),
+                    args,
+                }
+            } else {
+                Term::Var { name }
+            }
+        }
         Token::ParenL => {
             let mut params = vec![];
             loop {
@@ -165,7 +180,7 @@ fn read_unary(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term {
 }
 
 fn read_binary(iter: &mut std::iter::Peekable<logos::Lexer<'_, Token>>) -> Term {
-    let unary = read_unary(iter);
+    let unary = read_primary_expr(iter);
     match iter.peek() {
         None => unary,
         Some(token) => {
@@ -242,7 +257,7 @@ mod tests {
     }
 
     #[test]
-    fn test_unary() {
+    fn test_primary_expr() {
         test_parse("true", Term::True);
         test_parse("false", Term::False);
         test_parse("0", Term::Integer(0));
@@ -280,6 +295,15 @@ mod tests {
                 body: Box::new(Term::Var {
                     name: "y".to_owned(),
                 }),
+            },
+        );
+        test_parse(
+            "f()",
+            Term::Call {
+                func: Box::new(Term::Var {
+                    name: "f".to_owned(),
+                }),
+                args: vec![],
             },
         );
     }
